@@ -1,0 +1,37 @@
+@import './base.css';
+
+#app {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: minmax(360px, 0.8fr) minmax(620px, 1.2fr);
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+    padding: clamp(1.5rem, 4vw, 3rem);
+  }
+}
