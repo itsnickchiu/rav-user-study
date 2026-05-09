@@ -399,23 +399,28 @@ onBeforeUnmount(() => {
         </h2>
         <div class="example-copy">
           <template v-if="lang === 'zh-TW'">
-            <p>
-              重新對焦是指根據新的目標焦平面，改變影片中應該清楚的區域。輸入影片顯示原始場景；輸入
-              focus map 顯示原本的對焦狀態；目標 focus map 顯示希望輸出影片對焦的位置。 在 focus map
-              中，白色表示應該對焦的位置，黑色表示不應該對焦的位置。
-            </p>
+            <p>重新對焦是指根據新的目標焦平面，改變影片中應該清楚的區域。</p>
+            <ul class="example-list">
+              <li>輸入影片：顯示原始場景。</li>
+              <li>輸入 focus map：顯示原本的對焦狀態。</li>
+              <li>目標 focus map：顯示希望輸出影片對焦的位置。</li>
+              <li>Focus map 中，白色表示應該對焦的位置，黑色表示不應該對焦的位置。</li>
+            </ul>
             <p>
               在正式題目中，請把 Video A 與 Video B 和目標 focus map
               比較。好的輸出應該把清楚的焦點移到目標區域，並且在時間上穩定，不應出現明顯閃爍、亮度跳動或內容抖動。
             </p>
-            <p>
-              每題會有兩個問題：第一題是時間一致性，請判斷哪個影片比較少閃爍、亮度跳動或內容不穩定；第二題是空間對焦準確度，請判斷哪個影片比較準確地依照目標
-              focus map 對焦到正確區域。
-            </p>
-            <p>
-              如果 A 比 B 穩定或更準確，請選 A；如果 B 比 A 好，請選
-              B；如果兩者很接近、都不好，或很難判斷，請選 C。
-            </p>
+            <p>每題會有兩個問題：</p>
+            <ul class="example-list">
+              <li>時間一致性：請判斷哪個影片比較少閃爍、亮度跳動或內容不穩定。</li>
+              <li>空間對焦準確度：請判斷哪個影片比較準確地依照目標 focus map 對焦到正確區域。</li>
+            </ul>
+            <p>每題會有三個選項：</p>
+            <ul class="example-list">
+              <li>如果 Video A 較好，請選 A。</li>
+              <li>如果 Video B 較好，請選 B。</li>
+              <li>如果兩者很接近、都不好，或很難判斷，請選 C。</li>
+            </ul>
             <p class="green">
               在這個範例中，Video A 在時間一致性與空間對焦準確度都較好，因此兩個問題的標準答案都是
               A。
@@ -424,26 +429,42 @@ onBeforeUnmount(() => {
           <template v-else>
             <p>
               Refocusing means changing which region or focal plane should appear sharp in the
-              output video. The input video shows the original scene, the input focus map shows the
-              original focus condition, and the target focus map shows where the output should
-              focus. In a focus map, white indicates the focus point or focused region, while black
-              indicates regions that should not be in focus.
+              output video.
             </p>
+            <ul class="example-list">
+              <li>The input video shows the original scene.</li>
+              <li>The input focus map shows the original focus condition.</li>
+              <li>The target focus map shows where the output should focus.</li>
+              <li>
+                In a focus map, white indicates the focus point or focused region, while black
+                indicates regions that should not be in focus.
+              </li>
+            </ul>
             <p>
               In the formal questions, compare Video A and Video B against the target focus map. A
               good output should move the sharp focus to the target region while staying temporally
               stable, without obvious flickering, brightness jumps, or content jitter.
             </p>
-            <p>
-              Each trial has two questions. The first question asks about temporal consistency:
-              which video has less flickering, brightness jumping, or unstable content? The second
-              question asks about spatial refocusing accuracy: which video better focuses on the
-              correct region according to the target focus map?
-            </p>
-            <p>
-              Choose A if Video A is better, B if Video B is better, and C if the difference is too
-              small, both videos are poor, or it is difficult to judge.
-            </p>
+            <p> Each trial has two questions. </p>
+            <ul class="example-list">
+              <li>
+                Temporal consistency: which video has less flickering, brightness jumping, or
+                unstable content?
+              </li>
+              <li>
+                Spatial refocusing accuracy: which video better focuses on the correct region
+                according to the target focus map?
+              </li>
+            </ul>
+            <p>Each question has three options: </p>
+            <ul class="example-list">
+              <li>Choose A if Video A is better.</li>
+              <li>Choose B if Video B is better.</li>
+              <li>
+                Choose C if the difference is too small, both videos are poor, or it is difficult to
+                judge.
+              </li>
+            </ul>
             <p class="green">
               In this example, Video A is better for both temporal consistency and spatial
               refocusing accuracy, so the standard answer for both questions is A.
@@ -704,6 +725,15 @@ p {
 
 .example-copy p {
   margin-bottom: 14px;
+}
+
+.example-list {
+  margin: 4px 0 14px 0;
+  padding-left: 1.25rem;
+}
+
+.example-list li {
+  margin-bottom: 6px;
 }
 
 .example-panel {
