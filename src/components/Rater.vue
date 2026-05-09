@@ -380,7 +380,7 @@ function submit() {
       </figure>
 
       <figure>
-        <figcaption>
+        <figcaption class="target-focus-caption">
           <template v-if="lang === 'en-US'"> Target focus map </template>
           <template v-else> 目標 focus map </template>
         </figcaption>
@@ -550,6 +550,11 @@ figcaption {
   color: var(--color-heading);
   font-size: 12px;
   margin-bottom: 4px;
+}
+
+.target-focus-caption {
+  color: #c43c35;
+  font-weight: 600;
 }
 
 video {
