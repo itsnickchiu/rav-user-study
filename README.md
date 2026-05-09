@@ -16,6 +16,16 @@ npm install
 npm run dev
 ```
 
+### Switch Video Source
+
+Set `VITE_VIDEO_ROOT` in `.env`:
+
+```sh
+VITE_VIDEO_ROOT=videos_15fps
+```
+
+Use `videos_15fps` for the 15 fps videos, or `videos` for the original videos.
+
 ### Compile and Minify for Production
 
 ```sh
@@ -27,4 +37,3 @@ npm run build
 ```sh
 npm run lint
 ```
- 

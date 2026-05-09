@@ -7,66 +7,72 @@ const round = ref(null)
 const showExample = ref(false)
 const proposedMethod = 'rav'
 const baselineMethods = ['genfocus', 'diffcamera', 'learn2refocus']
+const videoRoot = import.meta.env.VITE_VIDEO_ROOT || 'videos_15fps'
+
+function videoPath(path) {
+  return `${videoRoot.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+}
+
 const studyVideos = [
   {
     dataset: 'UltraVideo',
     videoId: '12749f9c-c018-4190-9950-425780029a93',
     videoType: 'tc',
-    basePath: 'videos/UltraVideo/tc/12749f9c-c018-4190-9950-425780029a93'
+    basePath: videoPath('UltraVideo/tc/12749f9c-c018-4190-9950-425780029a93')
   },
   {
     dataset: 'UltraVideo',
     videoId: 'a292e712-f9ea-4763-8e1a-ac56621a5d1b',
     videoType: 'tc',
-    basePath: 'videos/UltraVideo/tc/a292e712-f9ea-4763-8e1a-ac56621a5d1b'
+    basePath: videoPath('UltraVideo/tc/a292e712-f9ea-4763-8e1a-ac56621a5d1b')
   },
   {
     dataset: 'UltraVideo',
     videoId: '04b9b8a5-4527-4d16-8eda-3daf06a2fb50',
     videoType: 'tv',
-    basePath: 'videos/UltraVideo/tv/04b9b8a5-4527-4d16-8eda-3daf06a2fb50'
+    basePath: videoPath('UltraVideo/tv/04b9b8a5-4527-4d16-8eda-3daf06a2fb50')
   },
   {
     dataset: 'UltraVideo',
     videoId: 'b27e6f4c-fb68-489d-92d1-3180882e4266',
     videoType: 'tv',
-    basePath: 'videos/UltraVideo/tv/b27e6f4c-fb68-489d-92d1-3180882e4266'
+    basePath: videoPath('UltraVideo/tv/b27e6f4c-fb68-489d-92d1-3180882e4266')
   },
   {
     dataset: 'CelebV-HQ',
     videoId: 'jBvjrK-pgrA_45_1',
     videoType: 'tc',
-    basePath: 'videos/CelebV-HQ/tc/jBvjrK-pgrA_45_1'
+    basePath: videoPath('CelebV-HQ/tc/jBvjrK-pgrA_45_1')
   },
   {
     dataset: 'CelebV-HQ',
     videoId: 'mt1R5svwMEc_1',
     videoType: 'tc',
-    basePath: 'videos/CelebV-HQ/tc/mt1R5svwMEc_1'
+    basePath: videoPath('CelebV-HQ/tc/mt1R5svwMEc_1')
   },
   {
     dataset: 'CelebV-HQ',
     videoId: 'jvBp6TqoHWw_2_2',
     videoType: 'tv',
-    basePath: 'videos/CelebV-HQ/tv/jvBp6TqoHWw_2_2'
+    basePath: videoPath('CelebV-HQ/tv/jvBp6TqoHWw_2_2')
   },
   {
     dataset: 'CelebV-HQ',
     videoId: 'k0sEhT8n6VM_6',
     videoType: 'tv',
-    basePath: 'videos/CelebV-HQ/tv/k0sEhT8n6VM_6'
+    basePath: videoPath('CelebV-HQ/tv/k0sEhT8n6VM_6')
   },
   {
     dataset: 'InTheWild',
     videoId: 'american_psycho4',
     videoType: 'real',
-    basePath: 'videos/itw/american_psycho4'
+    basePath: videoPath('itw/american_psycho4')
   },
   {
     dataset: 'InTheWild',
     videoId: 'breaking_bad2',
     videoType: 'real',
-    basePath: 'videos/itw/breaking_bad2'
+    basePath: videoPath('itw/breaking_bad2')
   }
 ]
 const requestedRoundCount = Number(import.meta.env.VITE_ROUNDS_PER_RECORD)
@@ -76,7 +82,7 @@ const totalRound =
     ? Math.min(requestedRoundCount, totalTrialCount)
     : totalTrialCount
 const estimatedTime = '10 to 15 minutes'
-const exampleBasePath = 'videos/UltraVideo/tc/c8d5ca5b-1590-4a92-82d2-e883a4014c0a'
+const exampleBasePath = videoPath('UltraVideo/tc/c8d5ca5b-1590-4a92-82d2-e883a4014c0a')
 const exampleTrial = reactive({
   dataset: 'UltraVideo',
   videoId: 'c8d5ca5b-1590-4a92-82d2-e883a4014c0a',
