@@ -410,7 +410,10 @@ onBeforeUnmount(() => {
               <li>輸入影片：顯示原始場景。</li>
               <li>輸入 focus map：顯示原本的對焦狀態。</li>
               <li>目標 focus map：顯示希望輸出影片對焦的位置。</li>
-              <li>Focus map 中，白色表示應該對焦的位置，黑色表示不應該對焦的位置。</li>
+              <li>
+                Focus map 中，<span class="highlight-green">白色表示應該對焦的位置</span
+                >，<span class="highlight-red">黑色表示不應該對焦的位置</span>。
+              </li>
             </ul>
             <p>
               在正式題目中，請把 Video A 與 Video B 和目標 focus map
@@ -418,8 +421,14 @@ onBeforeUnmount(() => {
             </p>
             <p>每題會有兩個問題：</p>
             <ul class="example-list">
-              <li>時間穩定性：請判斷哪個影片比較少閃爍、亮度跳動或內容不穩定。</li>
-              <li>空間對焦準確度：請判斷哪個影片比較準確地依照目標 focus map 對焦到正確區域。</li>
+              <li>
+                <span class="highlight-blue">時間穩定性</span
+                >：請判斷哪個影片比較少閃爍、亮度跳動或內容不穩定。
+              </li>
+              <li>
+                <span class="highlight-blue">空間對焦準確度</span
+                >：請判斷哪個影片比較準確地依照目標 focus map 對焦到正確區域。
+              </li>
             </ul>
             <p>每題會有三個選項：</p>
             <ul class="example-list">
@@ -442,8 +451,13 @@ onBeforeUnmount(() => {
               <li>The input focus map shows the original focus condition.</li>
               <li>The target focus map shows where the output should focus.</li>
               <li>
-                In a focus map, white indicates the focus point or focused region, while black
-                indicates regions that should not be in focus.
+                In a focus map,
+                <span class="highlight-green">
+                  white indicates the focus point or focused region</span
+                >, while
+                <span class="highlight-red">
+                  black indicates regions that should not be in focus</span
+                >.
               </li>
             </ul>
             <p>
@@ -454,12 +468,12 @@ onBeforeUnmount(() => {
             <p> Each trial has two questions. </p>
             <ul class="example-list">
               <li>
-                Temporal consistency: which video has less flickering, brightness jumping, or
-                unstable content?
+                <span class="highlight-blue">Temporal consistency</span>: which video has less
+                flickering, brightness jumping, or unstable content?
               </li>
               <li>
-                Spatial refocusing accuracy: which video better focuses on the correct region
-                according to the target focus map?
+                <span class="highlight-blue">Spatial refocusing accuracy</span>: which video better
+                focuses on the correct region according to the target focus map?
               </li>
             </ul>
             <p>Each question has three options: </p>
@@ -511,6 +525,88 @@ onBeforeUnmount(() => {
             questions.
           </template>
         </p>
+        <div class="formal-reminder">
+          <template v-if="lang === 'zh-TW'">
+            <h3>判斷提醒</h3>
+            <p>重新對焦是指根據新的目標焦平面，改變影片中應該清楚的區域。</p>
+            <ul class="example-list">
+              <li>輸入影片：顯示原始場景。</li>
+              <li>輸入 focus map：顯示原本的對焦狀態。</li>
+              <li>目標 focus map：顯示希望輸出影片對焦的位置。</li>
+              <li>
+                Focus map 中，<span class="highlight-green">白色表示應該對焦的位置</span
+                >，<span class="highlight-red">黑色表示不應該對焦的位置</span>。
+              </li>
+            </ul>
+            <p>
+              判斷時，請把 Video A 與 Video B 和目標 focus map
+              比較。好的輸出應該把清楚的焦點移到目標區域，並且在時間上穩定，不應出現明顯閃爍、亮度跳動或內容抖動。
+            </p>
+            <p>每題會有兩個問題：</p>
+            <ul class="example-list">
+              <li>
+                <span class="highlight-blue">時間穩定性</span
+                >：請判斷哪個影片比較少閃爍、亮度跳動或內容不穩定。
+              </li>
+              <li>
+                <span class="highlight-blue">空間對焦準確度</span
+                >：請判斷哪個影片比較準確地依照目標 focus map 對焦到正確區域。
+              </li>
+            </ul>
+            <p>每題會有三個選項：</p>
+            <ul class="example-list">
+              <li>如果 Video A 較好，請選 A。</li>
+              <li>如果 Video B 較好，請選 B。</li>
+              <li>如果兩者很接近、都不好，或很難判斷，請選 C。</li>
+            </ul>
+          </template>
+          <template v-else>
+            <h3>Rating reminder</h3>
+            <p>
+              Refocusing means changing which region or focal plane should appear sharp in the
+              output video.
+            </p>
+            <ul class="example-list">
+              <li>The input video shows the original scene.</li>
+              <li>The input focus map shows the original focus condition.</li>
+              <li>The target focus map shows where the output should focus.</li>
+              <li>
+                In a focus map,
+                <span class="highlight-green">
+                  white indicates the focus point or focused region</span
+                >, while
+                <span class="highlight-red">
+                  black indicates regions that should not be in focus</span
+                >.
+              </li>
+            </ul>
+            <p>
+              Compare Video A and Video B against the target focus map. A good output should move
+              the sharp focus to the target region while staying temporally stable, without obvious
+              flickering, brightness jumps, or content jitter.
+            </p>
+            <p>Each trial has two questions.</p>
+            <ul class="example-list">
+              <li>
+                <span class="highlight-blue">Temporal consistency</span>: which video has less
+                flickering, brightness jumping, or unstable content?
+              </li>
+              <li>
+                <span class="highlight-blue">Spatial refocusing accuracy</span>: which video better
+                focuses on the correct region according to the target focus map?
+              </li>
+            </ul>
+            <p>Each question has three options:</p>
+            <ul class="example-list">
+              <li>Choose A if Video A is better.</li>
+              <li>Choose B if Video B is better.</li>
+              <li>
+                Choose C if the difference is too small, both videos are poor, or it is difficult to
+                judge.
+              </li>
+            </ul>
+          </template>
+        </div>
       </div>
     </div>
     <div v-if="round === null && !showExample">
@@ -740,6 +836,32 @@ p {
 
 .example-list li {
   margin-bottom: 6px;
+}
+
+.highlight-green {
+  color: #148a43;
+  font-weight: 600;
+}
+
+.highlight-red {
+  color: #c43c35;
+  font-weight: 600;
+}
+
+.highlight-blue {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.formal-reminder {
+  border-top: 1px solid var(--color-border);
+  margin-top: 16px;
+  padding-top: 14px;
+}
+
+.formal-reminder h3 {
+  color: var(--color-heading);
+  margin-bottom: 8px;
 }
 
 .example-panel {
