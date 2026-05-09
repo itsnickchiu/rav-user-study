@@ -425,13 +425,13 @@ function submit() {
       <div class="question-block">
         <h3>
           <template v-if="lang === 'en-US'"> Temporal consistency </template>
-          <template v-else> 時間穩定性 </template>
+          <template v-else> 時間與內容穩定性 </template>
         </h3>
         <p>
           <template v-if="lang === 'en-US'">
             Which output has better temporal consistency?
           </template>
-          <template v-else> 哪個輸出影片的時間穩定性較好？ </template>
+          <template v-else> 哪個輸出影片的時間與內容穩定性較好？ </template>
         </p>
         <div class="radio-container">
           <div class="radio-item" v-for="option in answerOptions" :key="`temporal-${option.value}`">

@@ -82,10 +82,10 @@ const totalRound =
     ? Math.min(requestedRoundCount, totalTrialCount)
     : totalTrialCount
 const estimatedTime = '10 to 15 minutes'
-const exampleBasePath = videoPath('UltraVideo/tc/c8d5ca5b-1590-4a92-82d2-e883a4014c0a')
+const exampleBasePath = videoPath('UltraVideo/tc/13d46d36-a42c-48f3-91c0-a9977bb48a8c')
 const exampleTrial = reactive({
   dataset: 'UltraVideo',
-  videoId: 'c8d5ca5b-1590-4a92-82d2-e883a4014c0a',
+  videoId: '13d46d36-a42c-48f3-91c0-a9977bb48a8c',
   videoType: 'tc',
   inputVideo: `${exampleBasePath}/input.mp4`,
   inputFocusMap: `${exampleBasePath}/input_map.mp4`,
@@ -316,7 +316,7 @@ onBeforeUnmount(() => {
             我們正在進行 AI
             生成影像與影片之使用者偏好評量相關研究。本研究旨在評估現有影像與影片生成模型的生成品質，通過主觀和客觀的評估方法，分析模型生成影像的品質，進一步了解並分析生成模型的特性。
             <br /><br />
-            本研究將透過此網站進行問卷調查，提供您由模型預先生成的影片，並請您比較影片的時間穩定性與重新對焦準確度。本問卷共有
+            本研究將透過此網站進行問卷調查，提供您由模型預先生成的影片，並請您比較影片的時間與內容穩定性與重新對焦準確度。本問卷共有
             {{ totalRound }} 題，預計需要約 10 至 15 分鐘。 <br /><br />
             有效填寫問卷者可選擇留下email參加抽獎，我們將抽出有效問卷的 1/20 贏取7-11百元禮券。
           </template>
@@ -422,7 +422,7 @@ onBeforeUnmount(() => {
             <p>每題會有兩個問題：</p>
             <ul class="example-list">
               <li>
-                <span class="highlight-blue">時間穩定性</span
+                <span class="highlight-blue">時間與內容穩定性</span
                 >：請判斷哪個影片比較少閃爍、亮度跳動或內容不穩定。
               </li>
               <li>
@@ -436,10 +436,21 @@ onBeforeUnmount(() => {
               <li>如果 Video B 較好，請選 B。</li>
               <li>如果兩者很接近、都不好，或很難判斷，請選 C。</li>
             </ul>
-            <p class="green">
-              在這個範例中，Video A 在時間穩定性與空間對焦準確度都較好，因此兩個問題的標準答案都是
-              A。
-            </p>
+            <div class="green example-answer">
+              <p>
+                在這個範例中，input video 原先對焦在前景的男人，因此未對焦的背景（海洋、天空、山崖）會呈現模糊。你可以和輸入
+                focus map 交叉比對：前景的男人與船體呈白灰色，背景則呈黑色。
+              </p>
+              <p>
+                現在我們希望把焦點重新移到畫面的背景，因此目標 focus map
+                會變成背景為白色、前景為黑灰色。觀察輸出結果時，Video A 的背景比 Video B
+                更清晰，因此「空間對焦準確度」的標準答案是 A。
+              </p>
+              <p>
+                此外，Video B 在時間軸上較不穩定，會出現閃爍、亮度跳動或內容不穩定；Video A
+                則較穩定。因此「時間與內容穩定性」的標準答案也是 A。
+              </p>
+            </div>
           </template>
           <template v-else>
             <p>
@@ -485,10 +496,25 @@ onBeforeUnmount(() => {
                 judge.
               </li>
             </ul>
-            <p class="green">
-              In this example, Video A is better for both temporal consistency and spatial
-              refocusing accuracy, so the standard answer for both questions is A.
-            </p>
+            <div class="green example-answer">
+              <p>
+                In this example, the input video is originally focused on the man in the
+                foreground, so the out-of-focus background, including the ocean, sky, and cliff,
+                appears blurred. You can cross-check this with the input focus map: the foreground
+                man and boat appear white or gray, while the background appears black.
+              </p>
+              <p>
+                Now we want to refocus the video onto the background. In the target focus map, the
+                background becomes white, while the foreground becomes dark gray or black. In the
+                outputs, the background in Video A is clearer than in Video B, so the standard
+                answer for spatial refocusing accuracy is A.
+              </p>
+              <p>
+                Also, Video B is less stable over time, with flickering, brightness changes, or
+                unstable content, while Video A remains more stable. Therefore, the standard answer
+                for temporal consistency is also A.
+              </p>
+            </div>
           </template>
         </div>
         <p class="green">
@@ -545,7 +571,7 @@ onBeforeUnmount(() => {
             <p>每題會有兩個問題：</p>
             <ul class="example-list">
               <li>
-                <span class="highlight-blue">時間穩定性</span
+                <span class="highlight-blue">時間與內容穩定性</span
                 >：請判斷哪個影片比較少閃爍、亮度跳動或內容不穩定。
               </li>
               <li>
@@ -668,7 +694,7 @@ onBeforeUnmount(() => {
           </ul>
           <br />
           <h3>實驗進行方式</h3>
-          您將對預先使用不同方法產生的影片進行個人主觀的品質比較，並評估其時間穩定性與是否正確對焦到目標
+          您將對預先使用不同方法產生的影片進行個人主觀的品質比較，並評估其時間與內容穩定性與是否正確對焦到目標
           focus map 所指定的區域。您將進行 {{ totalRound }} 組實驗，大約花費 10 至 15
           分鐘，但您可隨時依自己的狀態停止實驗。
         </template>
