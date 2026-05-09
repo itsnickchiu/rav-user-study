@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 defineOptions({
   name: 'VideoRater'
@@ -32,6 +32,14 @@ const targetFocusMap = ref(null)
 
 const emit = defineEmits(['submit'])
 const showWarning = ref(false)
+const isPlaying = ref(false)
+const isSyncing = ref(false)
+let syncIntervalId = null
+let syncGeneration = 0
+
+const DRIFT_THRESHOLD_SECONDS = 0.08
+const SYNC_CHECK_MS = 160
+const LOOP_EDGE_SECONDS = 0.05
 
 const answerOptions = [
   { value: 'A', en: 'A is better', zh: 'A 較好' },
@@ -43,23 +51,242 @@ function videoUrl(path) {
   return `${dataURL}/${path}`
 }
 
-function restartVideos() {
-  nextTick(() => {
-    ;[inputVideo, outputAVideo, outputBVideo, inputFocusMap, targetFocusMap].forEach((videoRef) => {
-      const video = videoRef.value
-      if (!video) return
+function getVideoRefs() {
+  return [inputVideo, inputFocusMap, targetFocusMap, outputAVideo, outputBVideo]
+}
 
-      video.currentTime = 0
-      const playPromise = video.play()
-      if (playPromise) {
-        playPromise.catch(() => {})
+function getVideos() {
+  return getVideoRefs()
+    .map((videoRef) => videoRef.value)
+    .filter(Boolean)
+}
+
+function clearSyncMonitor() {
+  if (syncIntervalId !== null) {
+    window.clearInterval(syncIntervalId)
+    syncIntervalId = null
+  }
+}
+
+function pauseVideos() {
+  clearSyncMonitor()
+  getVideos().forEach((video) => video.pause())
+  isPlaying.value = false
+}
+
+function waitForVideoEvent(video, eventName, generation, timeoutMs = 5000) {
+  return new Promise((resolve) => {
+    if (generation !== syncGeneration) {
+      resolve(false)
+      return
+    }
+
+    let timeoutId = null
+    const cleanup = (result) => {
+      video.removeEventListener(eventName, onReady)
+      video.removeEventListener('error', onError)
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
       }
-    })
+      resolve(result && generation === syncGeneration)
+    }
+    const onReady = () => cleanup(true)
+    const onError = () => cleanup(false)
+
+    video.addEventListener(eventName, onReady, { once: true })
+    video.addEventListener('error', onError, { once: true })
+    timeoutId = window.setTimeout(() => cleanup(false), timeoutMs)
   })
 }
 
+function waitForMetadata(video, generation) {
+  if (video.readyState >= 1) {
+    return Promise.resolve(true)
+  }
+  return waitForVideoEvent(video, 'loadedmetadata', generation)
+}
+
+function waitForCanPlay(video, generation) {
+  if (video.readyState >= 3) {
+    return Promise.resolve(true)
+  }
+  return waitForVideoEvent(video, 'canplay', generation)
+}
+
+function seekVideo(video, time, generation) {
+  return new Promise((resolve) => {
+    if (generation !== syncGeneration || !Number.isFinite(video.duration)) {
+      resolve(false)
+      return
+    }
+
+    const maxTime = Math.max(0, video.duration - LOOP_EDGE_SECONDS)
+    const targetTime = Math.min(Math.max(0, time), maxTime)
+    if (Math.abs(video.currentTime - targetTime) < 0.02) {
+      resolve(true)
+      return
+    }
+
+    let timeoutId = null
+    const cleanup = (result) => {
+      video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('error', onError)
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+      }
+      resolve(result && generation === syncGeneration)
+    }
+    const onSeeked = () => cleanup(true)
+    const onError = () => cleanup(false)
+
+    video.addEventListener('seeked', onSeeked, { once: true })
+    video.addEventListener('error', onError, { once: true })
+    timeoutId = window.setTimeout(() => cleanup(false), 2500)
+    video.currentTime = targetTime
+  })
+}
+
+function getLoopDuration(videos) {
+  const durations = videos
+    .map((video) => video.duration)
+    .filter((duration) => Number.isFinite(duration) && duration > 0)
+  return durations.length > 0 ? Math.min(...durations) : null
+}
+
+function getLeaderVideo(videos) {
+  return inputVideo.value || videos[0]
+}
+
+function startSyncMonitor() {
+  clearSyncMonitor()
+  syncIntervalId = window.setInterval(() => {
+    if (!isPlaying.value || isSyncing.value) return
+
+    const videos = getVideos()
+    const leader = getLeaderVideo(videos)
+    if (!leader) return
+
+    const loopDuration = getLoopDuration(videos)
+    if (loopDuration !== null && leader.currentTime >= loopDuration - LOOP_EDGE_SECONDS) {
+      replayVideos()
+      return
+    }
+
+    const targetTime = leader.currentTime
+    videos.forEach((video) => {
+      if (video === leader || video.paused || !Number.isFinite(video.duration)) return
+
+      const boundedTarget = Math.min(targetTime, Math.max(0, video.duration - LOOP_EDGE_SECONDS))
+      if (Math.abs(video.currentTime - boundedTarget) > DRIFT_THRESHOLD_SECONDS) {
+        video.currentTime = boundedTarget
+      }
+    })
+  }, SYNC_CHECK_MS)
+}
+
+async function playVideos(generation = syncGeneration, realign = true) {
+  const videos = getVideos()
+  if (videos.length === 0) return
+
+  clearSyncMonitor()
+  isSyncing.value = true
+
+  if (realign) {
+    const leader = getLeaderVideo(videos)
+    const targetTime = leader?.currentTime || 0
+    await Promise.all(videos.map((video) => seekVideo(video, targetTime, generation)))
+  }
+
+  if (generation !== syncGeneration) return
+
+  const playResults = await Promise.all(
+    videos.map((video) => {
+      video.muted = true
+      return video.play().then(
+        () => true,
+        () => false
+      )
+    })
+  )
+
+  if (generation !== syncGeneration) return
+
+  isSyncing.value = false
+  isPlaying.value = playResults.every(Boolean)
+  if (isPlaying.value) {
+    startSyncMonitor()
+  }
+}
+
+async function replayVideos() {
+  const generation = ++syncGeneration
+  const videos = getVideos()
+  if (videos.length === 0) return
+
+  clearSyncMonitor()
+  isSyncing.value = true
+  isPlaying.value = false
+  videos.forEach((video) => video.pause())
+
+  await Promise.all(videos.map((video) => waitForMetadata(video, generation)))
+  await Promise.all(videos.map((video) => seekVideo(video, 0, generation)))
+  await Promise.all(videos.map((video) => waitForCanPlay(video, generation)))
+
+  if (generation !== syncGeneration) return
+
+  isSyncing.value = false
+  await playVideos(generation, false)
+}
+
+function togglePlayback() {
+  if (isPlaying.value) {
+    pauseVideos()
+    return
+  }
+  playVideos(syncGeneration)
+}
+
+function handleVideoEnded() {
+  if (isPlaying.value && !isSyncing.value) {
+    replayVideos()
+  }
+}
+
+async function restartVideos() {
+  const generation = ++syncGeneration
+  clearSyncMonitor()
+  isSyncing.value = true
+  isPlaying.value = false
+
+  await nextTick()
+
+  const videos = getVideos()
+  videos.forEach((video) => {
+    video.pause()
+    video.loop = false
+    video.muted = true
+    video.preload = 'auto'
+    video.load()
+  })
+
+  await Promise.all(videos.map((video) => waitForMetadata(video, generation)))
+  await Promise.all(videos.map((video) => seekVideo(video, 0, generation)))
+  await Promise.all(videos.map((video) => waitForCanPlay(video, generation)))
+
+  if (generation !== syncGeneration) return
+
+  isSyncing.value = false
+  await playVideos(generation, false)
+}
+
 watch(
-  () => props.trial.videoId,
+  () => [
+    props.trial.inputVideo,
+    props.trial.inputFocusMap,
+    props.trial.targetFocusMap,
+    props.trial.outputA,
+    props.trial.outputB
+  ],
   () => {
     temporalConsistency.value = props.readonlyExample ? 'A' : null
     spatialAccuracy.value = props.readonlyExample ? 'A' : null
@@ -68,6 +295,10 @@ watch(
   },
   { immediate: true }
 )
+
+onBeforeUnmount(() => {
+  clearSyncMonitor()
+})
 
 function submit() {
   if (props.readonlyExample) {
@@ -96,6 +327,27 @@ function submit() {
       <template v-else> 哪一個輸出影片較好？ </template>
     </h2>
 
+    <div class="sync-controls">
+      <button type="button" @click="replayVideos" :disabled="isSyncing">
+        <template v-if="lang === 'en-US'"> Replay </template>
+        <template v-else> 重新播放 </template>
+      </button>
+      <button type="button" @click="togglePlayback" :disabled="isSyncing">
+        <template v-if="isPlaying && lang === 'en-US'"> Pause </template>
+        <template v-else-if="isPlaying"> 暫停 </template>
+        <template v-else-if="lang === 'en-US'"> Play </template>
+        <template v-else> 播放 </template>
+      </button>
+      <span class="sync-status">
+        <template v-if="isSyncing && lang === 'en-US'"> Synchronizing videos... </template>
+        <template v-else-if="isSyncing"> 影片同步中... </template>
+        <template v-else-if="isPlaying && lang === 'en-US'"> Synchronized playback </template>
+        <template v-else-if="isPlaying"> 同步播放中 </template>
+        <template v-else-if="lang === 'en-US'"> Paused </template>
+        <template v-else> 已暫停 </template>
+      </span>
+    </div>
+
     <div class="video-grid reference-grid">
       <figure>
         <figcaption>
@@ -105,11 +357,10 @@ function submit() {
         <video
           ref="inputVideo"
           :src="videoUrl(trial.inputVideo)"
-          autoplay
           muted
-          loop
           playsinline
-          controls
+          preload="auto"
+          @ended="handleVideoEnded"
         ></video>
       </figure>
 
@@ -121,11 +372,10 @@ function submit() {
         <video
           ref="inputFocusMap"
           :src="videoUrl(trial.inputFocusMap)"
-          autoplay
           muted
-          loop
           playsinline
-          controls
+          preload="auto"
+          @ended="handleVideoEnded"
         ></video>
       </figure>
 
@@ -137,11 +387,10 @@ function submit() {
         <video
           ref="targetFocusMap"
           :src="videoUrl(trial.targetFocusMap)"
-          autoplay
           muted
-          loop
           playsinline
-          controls
+          preload="auto"
+          @ended="handleVideoEnded"
         ></video>
       </figure>
     </div>
@@ -152,11 +401,10 @@ function submit() {
         <video
           ref="outputAVideo"
           :src="videoUrl(trial.outputA)"
-          autoplay
           muted
-          loop
           playsinline
-          controls
+          preload="auto"
+          @ended="handleVideoEnded"
         ></video>
       </figure>
 
@@ -165,11 +413,10 @@ function submit() {
         <video
           ref="outputBVideo"
           :src="videoUrl(trial.outputB)"
-          autoplay
           muted
-          loop
           playsinline
-          controls
+          preload="auto"
+          @ended="handleVideoEnded"
         ></video>
       </figure>
     </div>
@@ -269,6 +516,18 @@ h2 {
   margin: 0;
 }
 
+.sync-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sync-status {
+  color: var(--color-text);
+  font-size: 12px;
+}
+
 .video-grid {
   display: grid;
   gap: 8px;
@@ -284,6 +543,7 @@ h2 {
 
 figure {
   margin: 0;
+  min-width: 0;
 }
 
 figcaption {
@@ -293,10 +553,11 @@ figcaption {
 }
 
 video {
-  aspect-ratio: 16 / 9;
   background: #000;
   border: 1px solid #888;
   display: block;
+  height: auto;
+  margin: 0 auto;
   object-fit: contain;
   width: 100%;
 }

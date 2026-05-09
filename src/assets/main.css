@@ -5,6 +5,7 @@
   margin: 0 auto;
   padding: clamp(1.25rem, 4vw, 3rem);
   font-weight: normal;
+  width: min(100%, 1360px);
 }
 
 a,
@@ -24,14 +25,16 @@ a,
 @media (min-width: 1024px) {
   body {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
   }
 
   #app {
+    align-items: center;
     display: grid;
     grid-template-columns: minmax(360px, 0.8fr) minmax(620px, 1.2fr);
     column-gap: clamp(2rem, 4vw, 3.5rem);
+    min-height: 100vh;
     padding: clamp(1.5rem, 4vw, 3rem);
   }
 }

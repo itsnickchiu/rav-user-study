@@ -58,9 +58,9 @@ const studyVideos = [
   },
   {
     dataset: 'InTheWild',
-    videoId: 'american_phycho4',
+    videoId: 'american_psycho4',
     videoType: 'real',
-    basePath: 'videos/itw/american_phycho4'
+    basePath: 'videos/itw/american_psycho4'
   },
   {
     dataset: 'InTheWild',
